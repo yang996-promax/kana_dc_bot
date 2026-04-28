@@ -172,22 +172,24 @@ async def stop(interaction: discord.Interaction):
         )
         return
 
-    # ❌ 关闭游戏
     game["active"] = False
 
-    # 🧹 清理题目 UI（关键）
     try:
         if game.get("message_id"):
             msg = await interaction.channel.fetch_message(game["message_id"])
             await msg.edit(
                 content="🏁 游戏已结束（本局已结算）",
-                view=None  # ⭐ 移除按钮
+                view=None
             )
     except:
-        pass  # 防止 message 找不到报错
+        pass
 
-    # 📊 结算
-    await interaction.response.send_message(
+    user_game.pop(user_id, None)
+
+    # ⭐ 改这里：defer + followup
+    await interaction.response.defer()
+
+    await interaction.followup.send(
         f"""🏁 游戏结束！
 
 📊 最终结算：
@@ -199,9 +201,6 @@ async def stop(interaction: discord.Interaction):
 """,
         ephemeral=True
     )
-
-    # 🧹 清掉游戏状态（推荐）
-    user_game.pop(user_id, None)
 
 @bot.event
 async def on_ready():
