@@ -133,11 +133,13 @@ def generate_question(mode):
 # ===== 指令 =====
 @tree.command(name="kana", description="练习日语50音")
 async def kana(interaction: discord.Interaction, mode: int = 3):
+
+    await interaction.response.defer()  # ⭐ 先回应（避免冲突）
+
     user_id = interaction.user.id
 
-    # 如果已经在游戏中，防止重复开
     if user_id in user_game and user_game[user_id]["active"]:
-        await interaction.response.send_message(
+        await interaction.followup.send(
             "⚠️ 你已经在游戏中了！先用 /stop 结束当前游戏。",
             ephemeral=True
         )
@@ -146,16 +148,14 @@ async def kana(interaction: discord.Interaction, mode: int = 3):
     user_game[user_id] = {
         "mode": mode,
         "active": True,
-        "message_id": None  # ⭐ 记录题目消息
+        "message_id": None
     }
 
     question, correct, options = generate_question(mode)
     view = QuizView(correct, options, mode)
 
-    await interaction.response.send_message(f"🧠 {question}", view=view)
+    msg = await interaction.followup.send(f"🧠 {question}", view=view)
 
-    # ⭐ 拿到 message 存起来
-    msg = await interaction.original_response()
     user_game[user_id]["message_id"] = msg.id
 
 @tree.command(name="stop", description="结束当前游戏并结算分数")
