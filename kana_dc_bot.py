@@ -16,7 +16,7 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 tree = bot.tree
 
 # ===== SQLite 持久化（多用户核心）=====
-DB_FILE = "kana_data.db"
+DB_FILE = "/data/kana_data.db"
 
 def init_db():
     conn = sqlite3.connect(DB_FILE)
